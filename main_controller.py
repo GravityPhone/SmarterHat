@@ -68,7 +68,19 @@ def interact_with_assistant(transcription):
     run_id = assistant_manager.run_assistant(last_thread_id, assistant_id="asst_3D8tACoidstqhbw5JE2Et2st", instructions=transcription)
     print(f"Assistant run initiated with ID: {run_id}")
 
-    # Check if the run is completed and retrieve the processed response
+    # Check the run state and call the corresponding method
+    run_status = assistant_manager.check_run_status(last_thread_id, run_id)
+    if run_status == 'pending':
+        assistant_manager.handle_pending_state(run_id)
+    elif run_status == 'requires_action':
+        functions_to_call = assistant_manager.handle_requires_action_state(run_id)
+        for function in functions_to_call: # Assuming each function has a 'name' and list of 'arguments'
+            result = globals()[function['name']](*function['arguments'])
+            assistant_manager.submit_function_results(run_id, result)
+    elif run_status == 'queued':
+        assistant_manager.handle_queued_state(run_id)
+    else:
+        print('Run is in an unknown state.')
     if assistant_manager.check_run_status(last_thread_id, run_id):
         response = assistant_manager.retrieve_most_recent_message(last_thread_id)
         # Assuming response contains a complex structure, extract the actual value
