@@ -1,5 +1,5 @@
 import time
-from os import os
+import os
 
 from assistant_manager import AssistantManager
 from eleven_labs_manager import eleven_labs_manager
