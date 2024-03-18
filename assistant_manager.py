@@ -1,5 +1,8 @@
 import openai
 import time
+from vision_module import VisionModule
+from main_controller import interact_with_assistant
+from eleven_labs_manager import ElevenLabsManager
 
 class AssistantManager:
     def __init__(self, openai_api_key):
@@ -44,13 +47,19 @@ class AssistantManager:
             return None
 
     def handle_pending_state(self, run_id):
-        pass  # Placeholder - Replace with implementation code
+        vision_module = VisionModule(self.openai_api_key)
+        description = vision_module.describe_captured_image(transcription=run_id)
+        # Submit the description to the OpenAI Assistant API
+        self.client.beta.threads.runs.update(run_id, description=description)
 
     def handle_requires_action_state(self, run_id):
         pass  # Placeholder - Replace with implementation code
 
     def handle_queued_state(self, run_id):
-        pass  # Placeholder - Replace with implementation code    def check_run_status(self, thread_id, run_id, timeout=300):
+        labs_manager = ElevenLabsManager()
+        response_text = self.client.assistant.retrieve(run_id).responses[0]['content']['text']['value'].strip()
+        labs_manager.play_text(response_text)
+        # End of function handle_queued_state    def check_run_status(self, thread_id, run_id, timeout=300):
         start_time = time.time()
         while time.time() - start_time < timeout:
             try:
