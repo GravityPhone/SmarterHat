@@ -40,6 +40,12 @@ def handle_detected_words(words):
 
 def process_recording():
     global picture_mode, last_thread_id, last_interaction_time
+    print(f'Thread ID: {last_thread_id}')
+    print(f'Last interaction time: {last_interaction_time}')
+    if last_thread_id is None:
+        print('New thread started.')
+    else:
+        print('Continuing existing thread.')
     transcription = assemblyai_transcriber.transcribe_audio_file("recorded_audio.wav")
     print(f"Transcription result: '{transcription}'")
     print('Transcription done.')
@@ -66,18 +72,23 @@ def process_recording():
     # Check the run state and call the corresponding method
     run_status = assistant_manager.check_run_status(last_thread_id, run_id)
     if run_status == 'pending':
-        assistant_manager.handle_pending_state(run_id)
+        response = assistant_manager.handle_pending_state(run_id)
+        print(f'API response: {response}')
     elif run_status == 'requires_action':
         functions_to_call = assistant_manager.handle_requires_action_state(run_id)
+        print(f'API response: {functions_to_call}')
         for function in functions_to_call: # Assuming each function has a 'name' and list of 'arguments'
             result = globals()[function['name']](*function['arguments'])
-            assistant_manager.submit_function_results(run_id, result)
+            response = assistant_manager.submit_function_results(run_id, result)
+            print(f'API response: {response}')
     elif run_status == 'queued':
-        assistant_manager.handle_queued_state(run_id)
+        response = assistant_manager.handle_queued_state(run_id)
+        print(f'API response: {response}')
     else:
         print('Run is in an unknown state.')
     if assistant_manager.check_run_status(last_thread_id, run_id):
         response = assistant_manager.retrieve_most_recent_message(last_thread_id)
+        print(f'API response: {response}')
         # Assuming response contains a complex structure, extract the actual value
         # This is a placeholder; you will need to adjust the extraction logic based on your actual data structure
         processed_response = response.content[0].text.value
