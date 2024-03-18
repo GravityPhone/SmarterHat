@@ -2,9 +2,10 @@ import time
 import os
 
 from assistant_manager import AssistantManager
-from eleven_labs_manager import eleven_labs_manager
+from eleven_labs_manager import ElevenLabsManager
 
 assistant_manager = AssistantManager(openai_api_key=os.getenv("OPENAI_API_KEY"))
+eleven_labs_manager = ElevenLabsManager(api_key=os.getenv("ELEVENLABS_API_KEY"))
 
 def interact_with_assistant(transcription):
     global last_thread_id, last_interaction_time
