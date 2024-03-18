@@ -1,7 +1,7 @@
 import openai
 import time
 from vision_module import VisionModule
-from main_controller import interact_with_assistant
+from interactions import interact_with_assistant
 from eleven_labs_manager import ElevenLabsManager
 
 class AssistantManager:
