@@ -33,12 +33,24 @@ class AssistantManager:
                 assistant_id=assistant_id,
                 instructions=instructions
             )
+
+            # Handle 'pending' and 'requires_action' states
+            self.handle_pending_state(run.id)
+            self.handle_requires_action_state(run.id)
+
             return run.id
         except Exception as e:
             print(f"Failed to run assistant on thread {thread_id}: {e}")
             return None
 
-    def check_run_status(self, thread_id, run_id, timeout=300):
+    def handle_pending_state(self, run_id):
+        pass  # Placeholder - Replace with implementation code
+
+    def handle_requires_action_state(self, run_id):
+        pass  # Placeholder - Replace with implementation code
+
+    def handle_queued_state(self, run_id):
+        pass  # Placeholder - Replace with implementation code    def check_run_status(self, thread_id, run_id, timeout=300):
         start_time = time.time()
         while time.time() - start_time < timeout:
             try:
@@ -46,6 +58,9 @@ class AssistantManager:
                     thread_id=thread_id,
                     run_id=run_id
                 )
+                # Handle 'queued' state
+                if run_status.status == 'queued':
+                    self.handle_queued_state(run_id)
                 if run_status.status == 'completed':
                     return True
                 elif run_status.status in ['failed', 'cancelled']:
@@ -63,4 +78,5 @@ class AssistantManager:
             return response.data[0] if response.data else None
         except Exception as e:
             print(f"Failed to retrieve the most recent message from thread {thread_id}: {e}")
+            return None
             return None
