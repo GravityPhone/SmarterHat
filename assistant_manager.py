@@ -6,7 +6,8 @@ from eleven_labs_manager import ElevenLabsManager
 
 class AssistantManager:
     def __init__(self, openai_api_key):
-        openai.api_key = openai_api_key
+        self.openai_api_key = openai_api_key
+        openai.api_key = self.openai_api_key
         self.client = openai
 
     def create_thread(self):
@@ -47,7 +48,7 @@ class AssistantManager:
             return None
 
     def handle_pending_state(self, run_id):
-        vision_module = VisionModule(self.openai_api_key)
+        vision_module = VisionModule(self.client.api_key)
         description = vision_module.describe_captured_image(transcription=run_id)
         # Submit the description to the OpenAI Assistant API
         self.client.beta.threads.runs.update(run_id, description=description)
