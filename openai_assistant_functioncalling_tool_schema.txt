@@ -26,5 +26,3 @@ Example schema:
     }
 }
 """
-# The rest of the main.py file would contain the actual code for the main controller.
-# This is just a placeholder since the task was to add the comment only.
