@@ -6,6 +6,7 @@ from assemblyai_transcriber import AssemblyAITranscriber
 from assistant_manager import AssistantManager
 from eleven_labs_manager import ElevenLabsManager
 from vision_module import VisionModule
+from interactions import interact_with_assistant
 
 # Initialize modules with provided API keys
 assemblyai_transcriber = AssemblyAITranscriber(api_key=os.getenv("ASSEMBLYAI_API_KEY"))
@@ -55,18 +56,7 @@ def process_recording():
         interact_with_assistant(transcription)
 
 
-def interact_with_assistant(transcription):
-    global last_thread_id, last_interaction_time
-    if not last_thread_id or time.time() - last_interaction_time > 90:
-        last_thread_id = assistant_manager.create_thread()
 
-    last_interaction_time = time.time()
-
-    message_id = assistant_manager.add_message_to_thread(last_thread_id, transcription)
-    print(f"Message added with ID: {message_id}")
-    # Initiate a run on the thread for the assistant to process the message
-    run_id = assistant_manager.run_assistant(last_thread_id, assistant_id="asst_3D8tACoidstqhbw5JE2Et2st", instructions=transcription)
-    print(f"Assistant run initiated with ID: {run_id}")
 
     # Check the run state and call the corresponding method
     run_status = assistant_manager.check_run_status(last_thread_id, run_id)
