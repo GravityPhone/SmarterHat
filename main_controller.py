@@ -42,10 +42,13 @@ def process_recording():
     global picture_mode, last_thread_id, last_interaction_time
     transcription = assemblyai_transcriber.transcribe_audio_file("recorded_audio.wav")
     print(f"Transcription result: '{transcription}'")
+    print('Transcription done.')
 
     if picture_mode:
+        print('Entering Picture Mode.')
         vision_module.capture_image_async()
         description = vision_module.describe_captured_image(transcription=transcription)
+        print('Picture Mode processing done.')
         # If there's a recent thread, send the description to it
         if last_thread_id:
             assistant_manager.add_message_to_thread(last_thread_id, description)
@@ -53,7 +56,9 @@ def process_recording():
         eleven_labs_manager.play_text(description)
         picture_mode = False
     else:
+        print('Interacting with assistant.')
         interact_with_assistant(transcription, last_thread_id, last_interaction_time)
+        print('Interaction with assistant done.')
 
 
 
@@ -86,7 +91,9 @@ def process_recording():
 def initialize():
     print("System initializing...")
     set_message_handler(handle_detected_words)
+    print('Message handler set.')
     setup_keyword_detection()
+    print('Keyword detection setup done.')
 
 if __name__ == "__main__":
     initialize()
