@@ -37,6 +37,7 @@ class AssistantManager:
                 assistant_id=assistant_id,
                 instructions=instructions
             )
+            print('Assistant run created.')
 
             # Handle 'pending' and 'requires_action' states
             self.handle_pending_state(run.id)
@@ -52,9 +53,10 @@ class AssistantManager:
         description = vision_module.describe_captured_image(transcription=run_id)
         # Submit the description to the OpenAI Assistant API
         self.client.beta.threads.runs.update(run_id, description=description)
+        print('Handled pending state.')
 
     def handle_requires_action_state(self, run_id):
-        pass  # Placeholder - Replace with implementation code
+        print('Requires action.')
 
     def handle_queued_state(self, run_id):
         labs_manager = ElevenLabsManager()
