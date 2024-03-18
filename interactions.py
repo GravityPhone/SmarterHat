@@ -10,6 +10,7 @@ eleven_labs_manager = ElevenLabsManager(api_key=os.getenv("ELEVENLABS_API_KEY"))
 def interact_with_assistant(transcription, last_thread_id, last_interaction_time):
     if not last_thread_id or time.time() - last_interaction_time > 90:
         last_thread_id = assistant_manager.create_thread()
+        print(f'Thread created with ID: {last_thread_id}')
 
     last_interaction_time = time.time()
 
@@ -19,15 +20,20 @@ def interact_with_assistant(transcription, last_thread_id, last_interaction_time
     print(f"Assistant run initiated with ID: {run_id}")
 
     run_status = assistant_manager.check_run_status(last_thread_id, run_id)
+    print(f'Run status: {run_status}')
     if run_status == 'pending':
         assistant_manager.handle_pending_state(run_id)
+        print('Pending state handled.')
     elif run_status == 'requires_action':
         functions_to_call = assistant_manager.handle_requires_action_state(run_id)
+        print(f'Functions to be called: {functions_to_call}')
         for function in functions_to_call:
             result = globals()[function['name']](*function['arguments'])
             assistant_manager.submit_function_results(run_id, result)
+        print('Required action handled.')
     elif run_status == 'queued':
         assistant_manager.handle_queued_state(run_id)
+        print('Queued state handled.')
     else:
         print('Run is in an unknown state.')
     if assistant_manager.check_run_status(last_thread_id, run_id):
