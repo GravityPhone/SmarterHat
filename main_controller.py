@@ -53,7 +53,7 @@ def process_recording():
         eleven_labs_manager.play_text(description)
         picture_mode = False
     else:
-        interact_with_assistant(transcription)
+        interact_with_assistant(transcription, last_thread_id, last_interaction_time)
 
 
 
