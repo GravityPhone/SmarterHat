@@ -73,7 +73,8 @@ def process_recording():
         # Check the run status
         while True:
             run_status = assistant_manager.check_run_status(thread_id, run_id)
-            print(f'Run status: {run_status}')
+            print(f"Run status at {time.time()}: {run_status}")
+            time.sleep(1)
             time.sleep(1)
 
 
