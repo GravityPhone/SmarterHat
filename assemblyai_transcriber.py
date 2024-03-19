@@ -14,8 +14,7 @@ class AssemblyAITranscriber:
         # Check the transcription status and return the appropriate response
         if transcript.status == aai.TranscriptStatus.error:
             return transcript.error
-        else:
-            return transcript.text
+        return transcript.text
 
 # The following testing code should be commented out or removed in the integration
 # if __name__ == "__main__":
