@@ -3,6 +3,7 @@ import time
 from vision_module import VisionModule
 
 from eleven_labs_manager import ElevenLabsManager
+import logging
 
 class AssistantManager:
     def __init__(self, openai_api_key):
@@ -27,7 +28,7 @@ class AssistantManager:
             )
             return message.id
         except Exception as e:
-            print(f"Failed to add message to thread {thread_id}: {e}")
+            logging.error(f"Failed to add message to thread {thread_id}: {e}")
             return None
 
     def run_assistant(self, thread_id, assistant_id, instructions):
@@ -37,11 +38,11 @@ class AssistantManager:
                 assistant_id=assistant_id,
                 instructions=instructions
             )
-            print('Assistant run created.')
+            logging.info('Assistant run created.')
 
             # Check the status of the run
             run_status = self.check_run_status(thread_id, run.id)
-            print(f'Run status immediately after running assistant: {run_status}')
+            logging.info(f'Run status immediately after running assistant: {run_status}')
 
             # Handle 'pending' and 'requires_action' states
             self.handle_pending_state(run.id)
@@ -57,10 +58,10 @@ class AssistantManager:
         description = vision_module.describe_captured_image(transcription=run_id)
         # Submit the description to the OpenAI Assistant API
         self.client.beta.threads.runs.update(run_id, description=description)
-        print('Handled pending state.')
+        logging.info('Handled pending state.')
 
     def handle_requires_action_state(self, run_id):
-        print('Requires action.')
+        logging.info('Requires action.')
 
     def handle_queued_state(self, run_id):
         labs_manager = ElevenLabsManager()
@@ -74,19 +75,19 @@ class AssistantManager:
                     thread_id=thread_id,
                     run_id=run_id
                 )
-                print(f"Run status at {time.time()}: {run_status.status}")
+                logging.info(f"Run status at {time.time()}: {run_status.status}")
                 # Handle 'queued' state
                 if run_status.status == 'queued':
                     self.handle_queued_state(run_id)
                 if run_status.status == 'completed':
                     assistant_messages = self.client.beta.threads.messages.list(thread_id=thread_id)
-                    print(f'Assistant messages: {assistant_messages}')
+                    logging.info(f'Assistant messages: {assistant_messages}')
                     return True
                 elif run_status.status in ['failed', 'cancelled']:
                     return False
                 time.sleep(1)
             except Exception as e:
-                print(f"Failed to check run status: {e}")
+                logging.error(f"Failed to check run status: {e}")
                 return False
         return False
 
@@ -96,17 +97,17 @@ class AssistantManager:
             # Assuming response.data contains the messages and taking the first one
             return response.data[0] if response.data else None
         except Exception as e:
-            print(f"Failed to retrieve the most recent message from thread {thread_id}: {e}")
+            logging.error(f"Failed to retrieve the most recent message from thread {thread_id}: {e}")
             return None
 
     def check_run_status(self, thread_id, run_id):
         try:
             run = self.client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
             status = run.status
-            print(f'Checking run status: {status}')
+            logging.info(f'Checking run status: {status}')
             return status
         except Exception as e:
-            print(f"Failed to check run status for run {run_id} in thread {thread_id}: {e}")
+            logging.error(f"Failed to check run status for run {run_id} in thread {thread_id}: {e}")
             return None
 
     def interact_with_assistant(self, transcription):
@@ -117,9 +118,9 @@ class AssistantManager:
         last_interaction_time = time.time()
 
         message_id = self.add_message_to_thread(last_thread_id, transcription)
-        print(f"Message added with ID: {message_id}")
+        logging.info(f"Message added with ID: {message_id}")
         run_id = self.run_assistant(last_thread_id, assistant_id="asst_3D8tACoidstqhbw5JE2Et2st", instructions=transcription)
-        print(f"Assistant run initiated with ID: {run_id}")
+        logging.info(f"Assistant run initiated with ID: {run_id}")
 
         run_status = self.check_run_status(last_thread_id, run_id)
         if run_status == 'pending':
@@ -132,12 +133,12 @@ class AssistantManager:
         elif run_status == 'queued':
             self.handle_queued_state(run_id)
         else:
-            print('Run is in an unknown state.')
+            logging.error('Run is in an unknown state.')
         if self.check_run_status(last_thread_id, run_id):
             response = self.retrieve_most_recent_message(last_thread_id)
             processed_response = response.content[0].text.value
             eleven_labs_manager.play_text(processed_response)
-            print(f"Played back the assistant's response: {processed_response}")
+            logging.info(f"Played back the assistant's response: {processed_response}")
         else:
-            print("Assistant processing failed or timed out.")
+            logging.error("Assistant processing failed or timed out.")
             return None
