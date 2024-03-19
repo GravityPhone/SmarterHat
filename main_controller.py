@@ -70,8 +70,9 @@ def process_recording():
         # Run the assistant on the thread
         run_id = assistant_manager.run_assistant(thread_id, 'asst_3D8tACoidstqhbw5JE2Et2st', transcription)
         print(f'Assistant run initiated with ID: {run_id}')
-        # Check the run status
-        while True:
+
+    # Check the run status
+    while True:
             run_status = assistant_manager.check_run_status(thread_id, run_id)
             print(f"Run status at {time.time()}: {run_status}")
             time.sleep(1)
