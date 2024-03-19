@@ -1,0 +1,148 @@
+Let's create some function specifications to interface with a hypothetical weather API. We'll pass these function specification to the Chat Completions API in order to generate function arguments that adhere to the specification.
+
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_weather",
+            "description": "Get the current weather",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "type": "string",
+                        "description": "The city and state, e.g. San Francisco, CA",
+                    },
+                    "format": {
+                        "type": "string",
+                        "enum": ["celsius", "fahrenheit"],
+                        "description": "The temperature unit to use. Infer this from the users location.",
+                    },
+                },
+                "required": ["location", "format"],
+            },
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_n_day_weather_forecast",
+            "description": "Get an N-day weather forecast",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "type": "string",
+                        "description": "The city and state, e.g. San Francisco, CA",
+                    },
+                    "format": {
+                        "type": "string",
+                        "enum": ["celsius", "fahrenheit"],
+                        "description": "The temperature unit to use. Infer this from the users location.",
+                    },
+                    "num_days": {
+                        "type": "integer",
+                        "description": "The number of days to forecast",
+                    }
+                },
+                "required": ["location", "format", "num_days"]
+            },
+        }
+    },
+]
+
+If we prompt the model about the current weather, it will respond with some clarifying questions.
+
+messages = []
+messages.append({"role": "system", "content": "Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous."})
+messages.append({"role": "user", "content": "What's the weather like today"})
+chat_response = chat_completion_request(
+    messages, tools=tools
+)
+assistant_message = chat_response.choices[0].message
+messages.append(assistant_message)
+assistant_message
+
+ChatCompletionMessage(content='Sure, could you please tell me the location for which you would like to know the weather?', role='assistant', function_call=None, tool_calls=None)
+Once we provide the missing information, it will generate the appropriate function arguments for us.
+
+messages.append({"role": "user", "content": "I'm in Glasgow, Scotland."})
+chat_response = chat_completion_request(
+    messages, tools=tools
+)
+assistant_message = chat_response.choices[0].message
+messages.append(assistant_message)
+assistant_message
+
+ChatCompletionMessage(content=None, role='assistant', function_call=None, tool_calls=[ChatCompletionMessageToolCall(id='call_2PArU89L2uf4uIzRqnph4SrN', function=Function(arguments='{\n  "location": "Glasgow, Scotland",\n  "format": "celsius"\n}', name='get_current_weather'), type='function')])
+By prompting it differently, we can get it to target the other function we've told it about.
+
+messages = []
+messages.append({"role": "system", "content": "Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous."})
+messages.append({"role": "user", "content": "what is the weather going to be like in Glasgow, Scotland over the next x days"})
+chat_response = chat_completion_request(
+    messages, tools=tools
+)
+assistant_message = chat_response.choices[0].message
+messages.append(assistant_message)
+assistant_message
+
+ChatCompletionMessage(content='Sure, I can help you with that. How many days would you like to get the weather forecast for?', role='assistant', function_call=None, tool_calls=None)
+Once again, the model is asking us for clarification because it doesn't have enough information yet. In this case it already knows the location for the forecast, but it needs to know how many days are required in the forecast.
+
+messages.append({"role": "user", "content": "5 days"})
+chat_response = chat_completion_request(
+    messages, tools=tools
+)
+chat_response.choices[0]
+
+Choice(finish_reason='tool_calls', index=0, logprobs=None, message=ChatCompletionMessage(content=None, role='assistant', function_call=None, tool_calls=[ChatCompletionMessageToolCall(id='call_ujD1NwPxzeOSCbgw2NOabOin', function=Function(arguments='{\n  "location": "Glasgow, Scotland",\n  "format": "celsius",\n  "num_days": 5\n}', name='get_n_day_weather_forecast'), type='function')]), internal_metrics=[{'cached_prompt_tokens': 128, 'total_accepted_tokens': 0, 'total_batched_tokens': 273, 'total_predicted_tokens': 0, 'total_rejected_tokens': 0, 'total_tokens_in_completion': 274, 'cached_embeddings_bytes': 0, 'cached_embeddings_n': 0, 'uncached_embeddings_bytes': 0, 'uncached_embeddings_n': 0, 'fetched_embeddings_bytes': 0, 'fetched_embeddings_n': 0, 'n_evictions': 0, 'sampling_steps': 40, 'sampling_steps_with_predictions': 0, 'batcher_ttft': 0.035738229751586914, 'batcher_initial_queue_time': 0.0007979869842529297}])
+Forcing the use of specific functions or no function
+We can force the model to use a specific function, for example get_n_day_weather_forecast by using the function_call argument. By doing so, we force the model to make assumptions about how to use it.
+
+# in this cell we force the model to use get_n_day_weather_forecast
+messages = []
+messages.append({"role": "system", "content": "Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous."})
+messages.append({"role": "user", "content": "Give me a weather report for Toronto, Canada."})
+chat_response = chat_completion_request(
+    messages, tools=tools, tool_choice={"type": "function", "function": {"name": "get_n_day_weather_forecast"}}
+)
+chat_response.choices[0].message
+
+ChatCompletionMessage(content=None, role='assistant', function_call=None, tool_calls=[ChatCompletionMessageToolCall(id='call_MapM0kaNZBR046H4tAB2UGVu', function=Function(arguments='{\n  "location": "Toronto, Canada",\n  "format": "celsius",\n  "num_days": 1\n}', name='get_n_day_weather_forecast'), type='function')])
+# if we don't force the model to use get_n_day_weather_forecast it may not
+messages = []
+messages.append({"role": "system", "content": "Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous."})
+messages.append({"role": "user", "content": "Give me a weather report for Toronto, Canada."})
+chat_response = chat_completion_request(
+    messages, tools=tools
+)
+chat_response.choices[0].message
+
+ChatCompletionMessage(content=None, role='assistant', function_call=None, tool_calls=[ChatCompletionMessageToolCall(id='call_z8ijGSoMLS7xcaU7MjLmpRL8', function=Function(arguments='{\n  "location": "Toronto, Canada",\n  "format": "celsius"\n}', name='get_current_weather'), type='function')])
+We can also force the model to not use a function at all. By doing so we prevent it from producing a proper function call.
+
+messages = []
+messages.append({"role": "system", "content": "Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous."})
+messages.append({"role": "user", "content": "Give me the current weather (use Celcius) for Toronto, Canada."})
+chat_response = chat_completion_request(
+    messages, tools=tools, tool_choice="none"
+)
+chat_response.choices[0].message
+
+ChatCompletionMessage(content='{\n  "location": "Toronto, Canada",\n  "format": "celsius"\n}', role='assistant', function_call=None, tool_calls=None)
+Parallel Function Calling
+Newer models like gpt-4-1106-preview or gpt-3.5-turbo-1106 can call multiple functions in one turn.
+
+messages = []
+messages.append({"role": "system", "content": "Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous."})
+messages.append({"role": "user", "content": "what is the weather going to be like in San Francisco and Glasgow over the next 4 days"})
+chat_response = chat_completion_request(
+    messages, tools=tools, model='gpt-3.5-turbo-1106'
+)
+
+assistant_message = chat_response.choices[0].message.tool_calls
+assistant_message
+
+[ChatCompletionMessageToolCall(id='call_8BlkS2yvbkkpL3V1Yxc6zR6u', function=Function(arguments='{"location": "San Francisco, CA", "format": "celsius", "num_days": 4}', name='get_n_day_weather_forecast'), type='function'),
+ ChatCompletionMessageToolCall(id='call_vSZMy3f24wb3vtNXucpFfAbG', function=Function(arguments='{"location": "Glasgow"
