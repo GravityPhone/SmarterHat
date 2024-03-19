@@ -75,6 +75,8 @@ class AssistantManager:
                 if run_status.status == 'queued':
                     self.handle_queued_state(run_id)
                 if run_status.status == 'completed':
+                    assistant_messages = self.client.beta.threads.messages.list(thread_id=thread_id)
+                    print(f'Assistant messages: {assistant_messages}')
                     return True
                 elif run_status.status in ['failed', 'cancelled']:
                     return False
