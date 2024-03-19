@@ -63,8 +63,18 @@ def process_recording():
         picture_mode = False
     else:
         print('Interacting with assistant.')
-        interact_with_assistant(transcription, last_thread_id, last_interaction_time)
-        print('Interaction with assistant done.')
+        # Create a thread
+        thread_id = assistant_manager.create_thread()
+        # Add a message to the thread
+        message_id = assistant_manager.add_message_to_thread(thread_id, transcription)
+        # Run the assistant on the thread
+        run_id = assistant_manager.run_assistant(thread_id, 'asst_3D8tACoidstqhbw5JE2Et2st', transcription)
+        print(f'Assistant run initiated with ID: {run_id}')
+        # Check the run status
+        while True:
+            run_status = assistant_manager.check_run_status(thread_id, run_id)
+            print(f'Run status: {run_status}')
+            time.sleep(1)
 
 
 
@@ -86,7 +96,12 @@ def process_recording():
         print(f'API response: {response}')
     else:
         print('Run is in an unknown state.')
-    if assistant_manager.check_run_status(last_thread_id, run_id):
+    while True:
+        if assistant_manager.check_run_status(last_thread_id, run_id):
+            print(f'Run status: {run_status}')
+            time.sleep(1)
+        else:
+            break
         response = assistant_manager.retrieve_most_recent_message(last_thread_id)
         print(f'API response: {response}')
         # Assuming response contains a complex structure, extract the actual value
