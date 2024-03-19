@@ -40,8 +40,7 @@ class AssistantManager:
             print('Assistant run created.')
 
             # Check the status of the run
-            run_status = self.check_run_status(thread_id, run.id)
-            print(f'Run status immediately after running assistant: {run_status}')
+            self.check_run_status(thread_id, run.id)
 
             # Handle 'pending' and 'requires_action' states
             self.handle_pending_state(run.id)
@@ -102,9 +101,7 @@ class AssistantManager:
     def check_run_status(self, thread_id, run_id):
         try:
             run = self.client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
-            status = run.status
-            print(f'Checking run status: {status}')
-            return status
+            return run.status
         except Exception as e:
             print(f"Failed to check run status for run {run_id} in thread {thread_id}: {e}")
             return None
