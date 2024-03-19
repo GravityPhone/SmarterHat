@@ -1,0 +1,7 @@
+2024-03-19 06:17:32,278 - INFO - System initializing...
+2024-03-19 06:17:32,278 - INFO - Message handler set.
+2024-03-19 06:17:39,669 - INFO - HTTP Request: POST https://api.openai.com/v1/threads "HTTP/1.1 200 OK"
+2024-03-19 06:17:40,716 - INFO - HTTP Request: POST https://api.assemblyai.com/v2/upload "HTTP/1.1 200 OK"
+2024-03-19 06:17:40,862 - INFO - HTTP Request: POST https://api.assemblyai.com/v2/transcript "HTTP/1.1 200 OK"
+2024-03-19 06:17:40,986 - INFO - HTTP Request: GET https://api.assemblyai.com/v2/transcript/3908bc2d-7b05-44fd-b926-5a49fd9783b3 "HTTP/1.1 200 OK"
+2024-03-19 06:17:44,369 - INFO - HTTP Request: GET https://api.assemblyai.com/v2/transcript/3908bc2d-7b05-44fd-b926-5a49fd9783b3 "HTTP/1.1 200 OK"
