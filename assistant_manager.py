@@ -70,6 +70,7 @@ class AssistantManager:
                     thread_id=thread_id,
                     run_id=run_id
                 )
+                print(f"Run status at {time.time()}: {run_status.status}")
                 # Handle 'queued' state
                 if run_status.status == 'queued':
                     self.handle_queued_state(run_id)
