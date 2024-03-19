@@ -39,6 +39,9 @@ class AssistantManager:
             )
             print('Assistant run created.')
 
+            # Check the status of the run
+            self.check_run_status(thread_id, run.id)
+
             # Handle 'pending' and 'requires_action' states
             self.handle_pending_state(run.id)
             self.handle_requires_action_state(run.id)
