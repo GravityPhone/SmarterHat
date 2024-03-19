@@ -80,7 +80,6 @@ def process_recording():
 
 
 
-    # Check the run state and call the corresponding method
     run_status = assistant_manager.check_run_status(last_thread_id, run_id)
     if run_status == 'pending':
         response = assistant_manager.handle_pending_state(run_id)
@@ -97,10 +96,30 @@ def process_recording():
         print(f'API response: {response}')
     else:
         print('Run is in an unknown state.')
+    
+    # Check the run state and call the corresponding method
     while True:
-        if assistant_manager.check_run_status(last_thread_id, run_id):
-            print(f'Run status: {run_status}')
-            time.sleep(1)
+        run_status = assistant_manager.check_run_status(thread_id, run_id)
+        print(f'Run status: {run_status}')
+        time.sleep(1)
+        if run_status == 'pending':
+            response = assistant_manager.handle_pending_state(run_id)
+            print(f'API response: {response}')
+        elif run_status == 'requires_action':
+            functions_to_call = assistant_manager.handle_requires_action_state(run_id)
+            print(f'API response: {functions_to_call}')
+            for function in functions_to_call: # Assuming each function has a 'name' and list of 'arguments'
+                result = globals()[function['name']](*function['arguments'])
+                response = assistant_manager.submit_function_results(run_id, result)
+                print(f'API response: {response}')
+        elif run_status == 'queued':
+            response = assistant_manager.handle_queued_state(run_id)
+            print(f'API response: {response}')
+        else:
+            print('Run is in an unknown state.')
+        
+        if run_status == 'pending' or run_status == 'requires_action' or run_status == 'queued':
+            continue
         else:
             break
         response = assistant_manager.retrieve_most_recent_message(last_thread_id)
