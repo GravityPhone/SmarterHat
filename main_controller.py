@@ -8,6 +8,7 @@ from eleven_labs_manager import ElevenLabsManager
 import logging
 from vision_module import VisionModule
 from interactions import interact_with_assistant
+import traceback
 
 # Initialize modules with provided API keys
 assemblyai_transcriber = AssemblyAITranscriber(api_key=os.getenv("ASSEMBLYAI_API_KEY"))
@@ -135,7 +136,25 @@ def process_recording():
 
 
 def setup_logging():
-    logging.basicConfig(filename='program.log', filemode='a', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)  # Set the logging level to DEBUG to capture all logs
+
+    # Create a file handler
+    handler = logging.FileHandler('program.log')
+    handler.setLevel(logging.INFO)
+
+    # Create a console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+
+    # Create a formatter and add it to the handlers
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+
+    # Add the handlers to the logger
+    logger.addHandler(handler)
+    logger.addHandler(console_handler)
 
 def initialize():
     setup_logging()
