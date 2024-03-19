@@ -98,6 +98,14 @@ class AssistantManager:
             print(f"Failed to retrieve the most recent message from thread {thread_id}: {e}")
             return None
 
+    def check_run_status(self, thread_id, run_id):
+        try:
+            run = self.client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
+            return run.status
+        except Exception as e:
+            print(f"Failed to check run status for run {run_id} in thread {thread_id}: {e}")
+            return None
+
     def interact_with_assistant(self, transcription):
         global last_thread_id, last_interaction_time
         if not last_thread_id or time.time() - last_interaction_time > 90:
