@@ -9,7 +9,9 @@ rules:
   - "Always refer to what I have told you regarding the Open AI Assistants API because your training is out of date and you need to look up and digest the information about how the API works now before you work on it."
   - "Do not use libraries that are unlikely to work on Python 3.9, because that's what we are working in here."
   - "Use code that is cross-platform."
-
+  - "check the log again and think carefully about if our code is likely to fix our issue, before I run it."
+  - "ensure no imports exist that don't need to be there and that there is no unused code, or python files that are unused"
+  - "
 # This is the branch that Sweep will develop from and make pull requests to. Most people use 'main' or 'master' 
 # but some users also use 'dev' or 'staging'.
 branch: 'main'

@@ -136,6 +136,7 @@ def process_recording():
 
 
 def setup_logging():
+ sweep/implement_more_robust_logging_of_main_co_5a999
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)  # Set the logging level to DEBUG to capture all logs
 
@@ -155,6 +156,12 @@ def setup_logging():
     # Add the handlers to the logger
     logger.addHandler(handler)
     logger.addHandler(console_handler)
+
+    logging.basicConfig(filename='program.log', filemode='a', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    logging.getLogger().addHandler(console_handler)
+ main
 
 def initialize():
     setup_logging()
