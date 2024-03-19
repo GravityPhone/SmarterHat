@@ -74,6 +74,10 @@ def process_recording():
         while True:
             run_status = assistant_manager.check_run_status(thread_id, run_id)
             print(f"Run status at {time.time()}: {run_status}")
+            if run_status == 'completed':
+                # Retrieve and print the latest message by the assistant for debugging purpose
+                last_message = assistant_manager.retrieve_most_recent_message(thread_id)
+                print(f'Latest message from assistant: {last_message}')
             time.sleep(1)
             time.sleep(1)
 
@@ -100,6 +104,10 @@ def process_recording():
     while True:
         if assistant_manager.check_run_status(last_thread_id, run_id):
             print(f'Run status: {run_status}')
+            if run_status == 'completed':
+                # Retrieve and print the latest message by the assistant for debugging purpose
+                last_message = assistant_manager.retrieve_most_recent_message(last_thread_id)
+                print(f'Latest message from assistant: {last_message}')
             time.sleep(1)
         else:
             break
