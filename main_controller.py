@@ -1,5 +1,6 @@
 import os
 import time
+import logging
 from word_detector import setup_keyword_detection, set_message_handler
 from audio_recorder import start_recording, stop_recording
 from assemblyai_transcriber import AssemblyAITranscriber
@@ -139,6 +140,17 @@ def initialize():
     print('Message handler set.')
     setup_keyword_detection()
     print('Keyword detection setup done.')
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+handler = logging.FileHandler('main_controller.log')
+handler.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)
 
 if __name__ == "__main__":
     initialize()
