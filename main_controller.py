@@ -40,15 +40,14 @@ def handle_detected_words(words):
 
 def process_recording():
     global picture_mode, last_thread_id, last_interaction_time
-    print(f'Thread ID: {last_thread_id}')
-    print(f'Last interaction time: {last_interaction_time}')
-    if last_thread_id is None:
-        print('New thread started.')
-    else:
-        print('Continuing existing thread.')
+    if not last_thread_id or time.time() - last_interaction_time > 90:
+        last_thread_id = assistant_manager.create_thread()
+        print(f'Thread created with ID: {last_thread_id}')
     transcription = assemblyai_transcriber.transcribe_audio_file("recorded_audio.wav")
     print(f"Transcription result: '{transcription}'")
-    print('Transcription done.')
+    interact_with_assistant(transcription, last_thread_id, last_interaction_time)
+    last_interaction_time = time.time()
+    print('Interacted with assistant.')
 
     if picture_mode:
         print('Entering Picture Mode.')
