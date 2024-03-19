@@ -136,6 +136,9 @@ def process_recording():
 
 def setup_logging():
     logging.basicConfig(filename='program.log', filemode='a', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    logging.getLogger().addHandler(console_handler)
 
 def initialize():
     setup_logging()
