@@ -24,8 +24,6 @@ class ElevenLabsManager:
             )
             if audio:
                 play(audio)
-            else:
-                print("Failed to generate audio.")
         except Exception as e:
             print(f"Error generating or playing audio: {e}")
 

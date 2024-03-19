@@ -21,6 +21,8 @@ def interact_with_assistant(transcription, last_thread_id, last_interaction_time
 
     run_status = assistant_manager.check_run_status(last_thread_id, run_id)
     print(f'Run status: {run_status}')
+    run_status = assistant_manager.check_run_status(last_thread_id, run_id)
+    print(f'Run status: {run_status}')
     if run_status == 'pending':
         assistant_manager.handle_pending_state(run_id)
         print('Pending state handled.')
@@ -36,7 +38,7 @@ def interact_with_assistant(transcription, last_thread_id, last_interaction_time
         print('Queued state handled.')
     else:
         print('Run is in an unknown state.')
-    if assistant_manager.check_run_status(last_thread_id, run_id):
+    if run_status:
         response = assistant_manager.retrieve_most_recent_message(last_thread_id)
         processed_response = response.content[0].text.value
         eleven_labs_manager.play_text(processed_response)
