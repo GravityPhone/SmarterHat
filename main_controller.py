@@ -5,6 +5,7 @@ from audio_recorder import start_recording, stop_recording
 from assemblyai_transcriber import AssemblyAITranscriber
 from assistant_manager import AssistantManager
 from eleven_labs_manager import ElevenLabsManager
+import logging
 from vision_module import VisionModule
 from interactions import interact_with_assistant
 
@@ -133,12 +134,16 @@ def process_recording():
 
 
 
+def setup_logging():
+    logging.basicConfig(filename='program.log', filemode='a', format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+
 def initialize():
-    print("System initializing...")
+    setup_logging()
+    logging.info("System initializing...")
     set_message_handler(handle_detected_words)
-    print('Message handler set.')
+    logging.info('Message handler set.')
     setup_keyword_detection()
-    print('Keyword detection setup done.')
+    logging.info('Keyword detection setup done.')
 
 if __name__ == "__main__":
     initialize()
